@@ -116,7 +116,7 @@ export function Submit({ onTrack }: { onTrack: (code: string) => void }) {
     <p className="page-description">Tell us what happened. No account or personal information is required.</p>
     <form className="report-form" onSubmit={submit} noValidate>
       <label className="form-field" htmlFor="report-category"><span className="field-label">Category</span>
-        <select id="report-category" value={category} onChange={event => setCategory(event.target.value)} disabled={busy}>{[['SECURITY','Security'],['HARASSMENT','Harassment'],['MISCONDUCT','Misconduct'],['FRAUD','Fraud'],['OTHER','Other']].map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select>
+        <select id="report-category" value={category} onChange={event => setCategory(event.target.value)} disabled={busy}>{[['SECURITY','Security'],['HARASSMENT','Harassment'],['CORRUPTION','Corruption'],['TECHNICAL','Technical'],['MISCONDUCT','Misconduct'],['FRAUD','Fraud'],['OTHER','Other']].map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select>
       </label>
 
       <label className="form-field" htmlFor="report-description"><span className="field-label">What happened?</span><span className="field-help">Share the details that will help someone understand the concern.</span>

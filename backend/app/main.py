@@ -1,12 +1,11 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.orm import Session
-from fastapi import Depends
 from app.core.config import get_settings
 from app.db.database import Base, engine, get_db
-from app.db import models  # register tables
+from app.db import models
 from app.routes import evidence, moderator, reports, tracking
 
 

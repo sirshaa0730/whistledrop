@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Home } from './pages/Home';
 import { Submit } from './pages/Submit';
@@ -9,12 +9,29 @@ import { Security } from './pages/Security';
 import './style.css';
 
 type Page = 'home' | 'submit' | 'track' | 'moderator' | 'privacy' | 'security';
+const themeOptions = [
+  { value: 'mono', label: 'Black & white' },
+  { value: 'forest', label: 'Forest' },
+  { value: 'clay', label: 'Terracotta' },
+  { value: 'ocean', label: 'Ocean' },
+  { value: 'plum', label: 'Plum' },
+  { value: 'rose', label: 'Rose' },
+  { value: 'sand', label: 'Sand' },
+] as const;
+type Theme = typeof themeOptions[number]['value'];
 const apiBase = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
 
 function App() {
   const [page, setPage] = useState<Page>('home');
   const [trackCode, setTrackCode] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [theme, setTheme] = useState<Theme>(readTheme);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    try { window.localStorage.setItem('whistledrop-color-theme', theme); }
+    catch {}
+  }, [theme]);
 
   function navigate(next: Page) {
     setPage(next); setMenuOpen(false); window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
@@ -35,6 +52,7 @@ function App() {
         <nav id="site-navigation" className={`site-navigation${menuOpen ? ' is-open' : ''}`} aria-label="Main navigation">
           <button className={page === 'submit' ? 'nav-active' : ''} onClick={() => navigate('submit')}>Submit report</button>
           <button className={page === 'track' ? 'nav-active' : ''} onClick={() => navigate('track')}>Track report</button>
+          <label className="theme-switcher" htmlFor="color-theme"><span>Theme</span><select id="color-theme" value={theme} onChange={event => setTheme(event.target.value as Theme)}>{themeOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
           <a href={`${apiBase}/docs`} target="_blank" rel="noreferrer">API docs <span aria-hidden="true">↗</span></a>
           <button className="nav-moderator" onClick={() => navigate('moderator')}>Moderator access</button>
         </nav>
@@ -56,6 +74,13 @@ function App() {
       </div><div className="footer-bottom"><span>WhistleDrop</span><span>Share only what you feel safe sharing.</span></div>
     </footer>
   </div>;
+}
+
+function readTheme(): Theme {
+  try {
+    const saved = window.localStorage.getItem('whistledrop-color-theme');
+    return themeOptions.find(option => option.value === saved)?.value ?? 'mono';
+  } catch { return 'mono'; }
 }
 
 function BrandMark({ small = false }: { small?: boolean }) {

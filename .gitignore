@@ -1,5 +1,7 @@
 .env
 **/.env
+.env.txt
+.pnpm-store/
 __pycache__/
 *.py[cod]
 .pytest_cache/

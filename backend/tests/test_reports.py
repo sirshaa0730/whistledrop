@@ -15,3 +15,10 @@ def test_invalid_and_missing_fields_are_rejected(client):
     assert client.post("/api/reports", json={"category":"BOGUS", "description":"Some useful report text"}).status_code == 422
     assert client.post("/api/reports", json={"category":"OTHER", "description":"tiny"}).status_code == 422
     assert client.post("/api/reports", json={"category":"OTHER", "description":"A sufficiently detailed report.", "email":"reporter@example.com"}).status_code == 422
+
+
+def test_recruiter_categories_are_supported(client):
+    for category in ("SECURITY", "HARASSMENT", "CORRUPTION", "TECHNICAL", "OTHER"):
+        response = client.post("/api/reports", json={"category":category, "description":"A sufficiently detailed report."})
+        assert response.status_code == 201
+        assert response.json()["status"] == "SUBMITTED"

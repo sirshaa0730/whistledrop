@@ -13,7 +13,6 @@ import app.services.evidence as evidence_service
 
 @pytest.fixture(autouse=True)
 def clean_database(monkeypatch):
-    # API tests use a clean scanner stub; scanner protocol/failure cases override it explicitly.
     monkeypatch.setattr(evidence_service, "scan_with_clamav", lambda _path: None)
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)

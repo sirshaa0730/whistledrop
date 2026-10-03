@@ -4,7 +4,7 @@ import type { ModeratorReport, Status } from '../types';
 import { StatusPill } from '../components/StatusPill';
 
 const statusOptions: Status[] = ['SUBMITTED', 'UNDER_REVIEW', 'RESOLVED', 'DISMISSED', 'CLOSED'];
-const categoryOptions = ['SECURITY', 'HARASSMENT', 'MISCONDUCT', 'FRAUD', 'OTHER'];
+const categoryOptions = ['SECURITY', 'HARASSMENT', 'CORRUPTION', 'TECHNICAL', 'MISCONDUCT', 'FRAUD', 'OTHER'];
 
 export function Moderator() {
   const [token, setToken] = useState('');
@@ -27,7 +27,7 @@ export function Moderator() {
       else setSelected(null);
     } catch (cause) {
       if (cause instanceof ApiError && [401, 503].includes(cause.status)) setSignedIn(false);
-      setError(cause instanceof ApiError && cause.status === 401 ? 'That moderator token was not accepted. Check it and try again.' : cause instanceof ApiError && cause.status === 503 ? 'Moderator access is not configured on this server.' : messageFor(cause));
+      setError(cause instanceof ApiError && cause.status === 401 ? 'That moderator token was not accepted. Check it and try again.' : cause instanceof ApiError && cause.status === 503 && /moderator access is not configured/i.test(cause.message) ? 'Moderator access is not configured on this server.' : messageFor(cause));
     } finally { setBusy(false); }
   }
 

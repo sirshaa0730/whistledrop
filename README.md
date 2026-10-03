@@ -19,20 +19,31 @@ whistledrop/
 ├── docs/          # Architecture, privacy, security, deployment
 ├── screenshots/   # Reserved for reviewed UI screenshots
 ├── .github/       # Backend CI workflow
+├── dev.mjs        # Starts the frontend and backend together
+├── package.json   # Root development command
+├── projectreport.md
 ├── docker-compose.yml
 └── README.md
 ```
 
 ## Run locally
 
-Requirements: Python 3.12+, Node.js 20+, npm, and Docker Compose for the full PostgreSQL + ClamAV stack.
+Requirements: Python 3.12+, Node.js 20+, and pnpm. Install dependencies once:
 
-1. Copy `.env.example` to `.env`, then replace both placeholder secrets. Keep the PostgreSQL password URL-safe or percent-encode it in `DATABASE_URL`.
-2. Start PostgreSQL, ClamAV, and the API: `docker compose up --build`.
-3. In `frontend/`, run `npm install`, then `npm run dev`. Open http://localhost:5173.
-4. API docs: http://localhost:8000/docs. Health: http://localhost:8000/health.
+```sh
+python -m pip install -r backend/requirements.txt
+pnpm --dir frontend install --frozen-lockfile
+```
 
-For backend-only development, copy `backend/.env.example` to `backend/.env`, set a local moderator token, and run from `backend/`: `pip install -r requirements.txt` then `uvicorn app.main:app --reload`. The example uses SQLite. Evidence uploads require a reachable ClamAV daemon; without one, upload requests fail safely with `503`. To use the Compose ClamAV daemon from the host-run backend, set `CLAMAV_HOST=127.0.0.1` and start `docker compose up -d clamav`. SQLite is for local development/tests; use PostgreSQL for deployment.
+For moderator access, copy `backend/.env.example` to `backend/.env` and set a private local moderator token. Then start the frontend and backend together from the repository root:
+
+```sh
+pnpm dev
+```
+
+Open http://localhost:5173. The API runs at http://localhost:8000; API docs are at http://localhost:8000/docs and health is at http://localhost:8000/health. The backend defaults to SQLite for local development. Evidence uploads require a reachable ClamAV daemon and fail safely with `503` without one. To use Compose ClamAV from the host-run backend, configure `CLAMAV_HOST=127.0.0.1` and start it with `docker compose up -d clamav`.
+
+For the PostgreSQL + ClamAV + backend container stack, copy `.env.example` to `.env`, replace its placeholders, then run `docker compose up --build`. The frontend is still started separately with `pnpm dev`. See [projectreport.md](projectreport.md) for the file map, API, data flow, configuration, security model, and limitations.
 
 ## Configuration
 
@@ -106,7 +117,7 @@ Moderators can move a report from `SUBMITTED` to `UNDER_REVIEW`, then to `RESOLV
 
 ## Tests and frontend build
 
-From `backend/`: `pip install -r requirements.txt` then `pytest -q`. From `frontend/`: `npm install` then `npm run build`. GitHub Actions runs the backend suite.
+From the repository root, run `pnpm --dir frontend run build`. From `backend/`, run `pytest -q`. GitHub Actions runs the backend suite. The supported categories include Security, Harassment, Corruption, Technical, and Other, with Misconduct and Fraud available as additional categories.
 
 ## Privacy and design decisions
 

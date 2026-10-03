@@ -6,6 +6,8 @@ from pydantic import AnyHttpUrl, BaseModel, ConfigDict, Field
 class Category(StrEnum):
     SECURITY = "SECURITY"
     HARASSMENT = "HARASSMENT"
+    CORRUPTION = "CORRUPTION"
+    TECHNICAL = "TECHNICAL"
     MISCONDUCT = "MISCONDUCT"
     FRAUD = "FRAUD"
     OTHER = "OTHER"
