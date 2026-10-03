@@ -123,7 +123,7 @@ From the repository root, run `pnpm --dir frontend run build`. From `backend/`, 
 
 No reporter identity fields or accounts are collected. A cryptographic random case code, not the internal database ID, is used for public tracking. Tracking reveals only category, workflow state, dates, and updates; moderators see the report narrative and evidence metadata and can download evidence through authenticated endpoints. The system does not promise untraceability: infrastructure logs and identifying details in user-submitted text/files remain possible. Upload names are randomized and original names are metadata only. The browser UI uses system fonts and does not fetch third-party font resources.
 
-Screenshots: none are included yet; `screenshots/` is reserved for reviewed interface captures.
+Reviewed interface screenshots are included in `screenshots/`.
 
 ## Known limitations
 
