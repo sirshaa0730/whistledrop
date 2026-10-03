@@ -1,0 +1,63 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-whistledrop}
+      POSTGRES_USER: ${POSTGRES_USER:-whistledrop}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in project-root .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  clamav:
+    image: ${CLAMAV_IMAGE:-clamav/clamav:1.4}
+    environment:
+      CLAMD_STARTUP_TIMEOUT: ${CLAMD_STARTUP_TIMEOUT:-1800}
+      CLAMAV_NO_MILTERD: "true"
+    volumes:
+      - clamav_database:/var/lib/clamav
+    # Loopback-only access supports a backend run directly on the developer host.
+    ports:
+      - "127.0.0.1:3310:3310"
+    # The official image supplies a clamd ping health check and startup grace period.
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL in project-root .env}
+      MODERATOR_TOKEN: ${MODERATOR_TOKEN:?Set MODERATOR_TOKEN in project-root .env}
+      EVIDENCE_DIRECTORY: ${EVIDENCE_DIRECTORY:-/data/evidence}
+      CLAMAV_HOST: ${CLAMAV_HOST:-clamav}
+      CLAMAV_PORT: ${CLAMAV_PORT:-3310}
+      CLAMAV_TIMEOUT_SECONDS: ${CLAMAV_TIMEOUT_SECONDS:-15}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+      ENVIRONMENT: production
+    ports:
+      - "8000:8000"
+    volumes:
+      - evidence_data:${EVIDENCE_DIRECTORY:-/data/evidence}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      clamav:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  evidence_data:
+  clamav_database:
